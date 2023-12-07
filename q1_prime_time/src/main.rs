@@ -25,9 +25,9 @@ async fn parse_request(socket: &mut TcpStream, address: SocketAddr) -> io::Resul
     println!("New client: {}", address);
 
     let (mut read, mut write) = socket.split();
-    
+
+    let mut buf = vec![0u8; 1024];
     loop {
-        let mut buf = vec![0u8; 1024];
         let bytes = read.read(&mut buf).await?;
         if bytes == 0 {
             // End of stream, client closed connection
