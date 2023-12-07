@@ -12,21 +12,21 @@ async fn main() -> io::Result<()> {
     println!("Server listening on: {}", &listener.local_addr()?);
 
     loop {
-        let (mut socket, addr) = listener.accept().await?;
-        tokio::spawn(async move {
-            if let Err(e) = parse_request(&mut socket, addr).await {
-                eprintln!("Error handling client: {}", e);
+        match listener.accept().await {
+            Ok((mut socket, addr)) => {
+                tokio::spawn(async move { parse_request(&mut socket, addr).await });
             }
-        });
+            Err(e) => println!("Error accepting connection: {}", e),
+        }
     }
 }
 
 async fn parse_request(socket: &mut TcpStream, address: SocketAddr) -> io::Result<()> {
     println!("New client: {}", address);
 
+    let (mut read, mut write) = socket.split();
+    
     loop {
-        let (mut read, mut write) = socket.split();
-        
         let mut buf = vec![0u8; 1024];
         let bytes = read.read(&mut buf).await?;
         if bytes == 0 {
