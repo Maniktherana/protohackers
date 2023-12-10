@@ -38,7 +38,7 @@ async fn handle_request(socket: &mut TcpStream, address: SocketAddr) -> std::io:
         // Attempt to parse the incoming string as a Request
         let response = match parse_request(&bytes_to_str) {
             Ok(request) => {
-                println!("Request: {:#?}", request);
+                println!("{:?}", request);
 
                 if request.method == "isPrime" {
                     Response {
@@ -61,7 +61,7 @@ async fn handle_request(socket: &mut TcpStream, address: SocketAddr) -> std::io:
             }
         };
 
-        println!("Response: {:#?}", response);
+        println!("{:?}\n", response);
 
         let res_to_str = serde_json::to_string(&response).unwrap();
         let res_to_bytes = res_to_str.as_bytes();
@@ -98,6 +98,7 @@ impl Request {
         }
 
         for i in 2..=((n as f32).sqrt() as i32) {
+            println!("n is {}", i);
             if n % i as f64 == 0.0 {
                 return false;
             }
