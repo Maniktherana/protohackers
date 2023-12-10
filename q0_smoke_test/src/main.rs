@@ -1,5 +1,5 @@
 use tokio::net::{TcpListener, TcpStream};
-use tokio::io::copy;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use std::net::SocketAddr;
 use std::io;
 
@@ -23,9 +23,28 @@ async fn main() -> io::Result<()> {
 async fn echo(socket: &mut TcpStream, address: SocketAddr) -> io::Result<()> {
     println!("New client: {}", address);
 
-    let (mut reader, mut writer) = socket.split();
-    
-    copy(&mut reader, &mut writer).await?;
+    let mut buffer = [0; 1024]; // Buffer to read/write data
+
+    println!("Connected: {}", address);
+
+    loop {
+        let bytes_read = match socket.read(&mut buffer).await {
+            Ok(n) if n == 0 => break, // End of stream
+            Ok(n) => n,
+            Err(e) => {
+                eprintln!("Failed to read from socket: {}", e);
+                return Err(e);
+            }
+        };
+
+        match socket.write_all(&buffer[..bytes_read]).await {
+            Ok(_) => {} // Data successfully written
+            Err(e) => {
+                eprintln!("Failed to write to socket: {}", e);
+                return Err(e);
+            }
+        }
+    }
 
     println!("Closed connection: {}", address);
     Ok(())
