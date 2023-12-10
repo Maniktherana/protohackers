@@ -21,11 +21,11 @@ async fn main() -> std::io::Result<()> {
 async fn handle_request(socket: &mut TcpStream, address: SocketAddr) -> std::io::Result<()> {
     println!("New client: {}", address);
 
-    let mut buf = vec![0u8; 1024];
-
+    
     let mut i = 0;
-
+    
     loop {
+        let mut buf = vec![0u8; 1024];
         println!("i is now {}", i);
         let bytes = match socket.read(&mut buf).await {
             Ok(n) if n == 0 => break, // End of stream, client closed connection
