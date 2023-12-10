@@ -36,7 +36,11 @@ async fn handle_request(socket: &mut TcpStream, address: SocketAddr) -> std::io:
             }
         };
 
+        println!("bytes is now {}", bytes);
+
         let bytes_to_str = String::from_utf8_lossy(&buf[..bytes]);
+
+        println!("bytes_to_str is now {}", bytes_to_str);
 
         // Attempt to parse the incoming string as a Request
         let response = match parse_request(&bytes_to_str) {
@@ -102,7 +106,6 @@ impl Request {
         }
 
         for i in 2..=((n as f32).sqrt() as i32) {
-            println!("n is {}", i);
             if n % i as f64 == 0.0 {
                 return false;
             }
